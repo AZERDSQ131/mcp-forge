@@ -191,7 +191,7 @@ export async function publish(): Promise<void> {
   try {
     // Clone registry in a temp dir
     const tmp = `/tmp/mcpm-publish-${Date.now()}`;
-    execSync(`gh repo fork AZERDSQ131/mcp-forge --clone --fork-name mcpm-publish-tmp 2>/dev/null || git clone https://github.com/AZERDSQ131/mcp-forge.git ${tmp}`, { stdio: "pipe", timeout: 30_000 });
+    execSync(`gh repo fork AZERDSQ131/mcpm --clone --fork-name mcpm-publish-tmp 2>/dev/null || git clone https://github.com/AZERDSQ131/mcpm.git ${tmp}`, { stdio: "pipe", timeout: 30_000 });
 
     const repoDir = fs.existsSync(tmp) ? tmp : `${process.env.HOME}/mcpm-publish-tmp`;
     const registryFile = path.join(repoDir, "packages", "registry", "registry.json");
@@ -206,7 +206,7 @@ export async function publish(): Promise<void> {
     execSync(`git -C ${repoDir} commit -m "Add ${answers.id} to registry"`, { stdio: "pipe" });
     execSync(`git -C ${repoDir} push origin ${branch}`, { stdio: "pipe", timeout: 15_000 });
     execSync(
-      `gh pr create --repo AZERDSQ131/mcp-forge --title "Add ${answers.displayName} to registry" --body "Adds \`${answers.id}\` — ${answers.description}\n\nPackage: \`${answers.packageName}\`" --head ${branch}`,
+      `gh pr create --repo AZERDSQ131/mcpm --title "Add ${answers.displayName} to registry" --body "Adds \`${answers.id}\` — ${answers.description}\n\nPackage: \`${answers.packageName}\`" --head ${branch}`,
       { stdio: "pipe", timeout: 15_000 }
     );
 
@@ -224,7 +224,7 @@ export async function publish(): Promise<void> {
 function printManualInstructions(id: string, entry: RegistryEntry): void {
   console.log(chalk.bold("\nAdd this to packages/registry/registry.json and open a PR:\n"));
   console.log(chalk.dim(JSON.stringify({ [id]: entry }, null, 2)));
-  console.log(chalk.dim("\nhttps://github.com/AZERDSQ131/mcp-forge/edit/main/packages/registry/registry.json\n"));
+  console.log(chalk.dim("\nhttps://github.com/AZERDSQ131/mcpm/edit/main/packages/registry/registry.json\n"));
 }
 
 function commandExists(cmd: string): boolean {

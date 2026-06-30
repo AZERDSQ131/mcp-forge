@@ -8,7 +8,7 @@ import type { Registry, RegistryServer, RegistryBundle } from "./types.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const REGISTRY_URL =
-  "https://raw.githubusercontent.com/AZERDSQ131/mcp-forge/main/packages/registry/registry.json";
+  "https://raw.githubusercontent.com/AZERDSQ131/mcpm/main/packages/registry/registry.json";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 const CACHE_PATH = path.join(os.homedir(), ".cache", "mcp-fleet", "registry.json");
 

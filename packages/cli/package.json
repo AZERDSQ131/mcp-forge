@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AZERDSQ131/mcp-forge"
+    "url": "https://github.com/AZERDSQ131/mcpm"
   },
   "keywords": ["mcp", "model-context-protocol", "claude", "cursor", "ai", "cli", "mcpm", "mcp-manager"],
   "author": "",
