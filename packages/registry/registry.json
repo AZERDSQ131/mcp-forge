@@ -509,5 +509,37 @@
       "env": {},
       "tags": ["video", "search", "content"]
     }
+  },
+  "bundles": {
+    "webdev": {
+      "name": "Web Dev",
+      "description": "Essential tools for web developers",
+      "servers": ["github", "postgres", "fetch", "playwright", "filesystem"]
+    },
+    "ai": {
+      "name": "AI & Search",
+      "description": "Web search, scraping, and AI-powered retrieval",
+      "servers": ["brave-search", "exa", "perplexity", "firecrawl", "memory"]
+    },
+    "data": {
+      "name": "Data Stack",
+      "description": "Databases and data tools",
+      "servers": ["postgres", "sqlite", "redis", "supabase", "elasticsearch"]
+    },
+    "devops": {
+      "name": "DevOps",
+      "description": "Infrastructure and deployment tools",
+      "servers": ["github", "docker", "kubernetes", "sentry", "vercel"]
+    },
+    "productivity": {
+      "name": "Productivity",
+      "description": "Communication and project management tools",
+      "servers": ["slack", "notion", "linear", "github", "obsidian"]
+    },
+    "startup": {
+      "name": "Startup Stack",
+      "description": "Everything a startup needs",
+      "servers": ["github", "stripe", "postgres", "slack", "notion", "sentry", "vercel"]
+    }
   }
 }

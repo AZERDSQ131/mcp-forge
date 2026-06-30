@@ -2,6 +2,11 @@ import fs from "fs";
 import path from "path";
 import type { ClientConfig, McpServerConfig, DetectedClient } from "../types.js";
 
+// Zed uses a different key and structure than all other clients
+function getServersKey(client: DetectedClient): string {
+  return client.id === "zed" ? "context_servers" : "mcpServers";
+}
+
 export function readConfig(client: DetectedClient): ClientConfig {
   if (!fs.existsSync(client.configPath)) {
     return { mcpServers: {} };
@@ -9,11 +14,32 @@ export function readConfig(client: DetectedClient): ClientConfig {
   try {
     const raw = fs.readFileSync(client.configPath, "utf-8");
     const parsed = JSON.parse(raw);
-    if (!parsed.mcpServers) parsed.mcpServers = {};
-    return parsed as ClientConfig;
+    const key = getServersKey(client);
+    if (!parsed[key]) parsed[key] = {};
+    // Normalize to internal format
+    return { mcpServers: parseServers(client, parsed[key]) };
   } catch {
     return { mcpServers: {} };
   }
+}
+
+function parseServers(
+  client: DetectedClient,
+  raw: Record<string, unknown>
+): Record<string, McpServerConfig> {
+  if (client.id !== "zed") return raw as Record<string, McpServerConfig>;
+  // Zed format: { command: { path, args }, env }
+  const result: Record<string, McpServerConfig> = {};
+  for (const [id, val] of Object.entries(raw)) {
+    const v = val as Record<string, unknown>;
+    const cmd = v["command"] as Record<string, unknown> | undefined;
+    result[id] = {
+      command: (cmd?.["path"] as string) ?? "",
+      args: (cmd?.["args"] as string[]) ?? [],
+      env: (v["env"] as Record<string, string>) ?? undefined,
+    };
+  }
+  return result;
 }
 
 export function writeConfig(client: DetectedClient, config: ClientConfig): void {
@@ -21,14 +47,41 @@ export function writeConfig(client: DetectedClient, config: ClientConfig): void 
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-  fs.writeFileSync(client.configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
+
+  let existing: Record<string, unknown> = {};
+  if (fs.existsSync(client.configPath)) {
+    try {
+      existing = JSON.parse(fs.readFileSync(client.configPath, "utf-8"));
+    } catch {}
+  }
+
+  const key = getServersKey(client);
+  existing[key] = serializeServers(client, config.mcpServers);
+  fs.writeFileSync(client.configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
 }
 
-function buildServerConfig(client: DetectedClient, serverConfig: McpServerConfig): McpServerConfig {
-  if (client.id === "claude") {
-    return { type: "stdio", ...serverConfig } as McpServerConfig;
+function serializeServers(
+  client: DetectedClient,
+  servers: Record<string, McpServerConfig>
+): unknown {
+  if (client.id === "zed") {
+    const result: Record<string, unknown> = {};
+    for (const [id, s] of Object.entries(servers)) {
+      result[id] = {
+        command: { path: s.command, args: s.args },
+        ...(s.env && { env: s.env }),
+      };
+    }
+    return result;
   }
-  return serverConfig;
+  if (client.id === "claude") {
+    const result: Record<string, unknown> = {};
+    for (const [id, s] of Object.entries(servers)) {
+      result[id] = { type: "stdio", command: s.command, args: s.args, ...(s.env && { env: s.env }) };
+    }
+    return result;
+  }
+  return servers;
 }
 
 export function addServer(
@@ -37,7 +90,7 @@ export function addServer(
   serverConfig: McpServerConfig
 ): void {
   const config = readConfig(client);
-  config.mcpServers[serverId] = buildServerConfig(client, serverConfig);
+  config.mcpServers[serverId] = serverConfig;
   writeConfig(client, config);
 }
 

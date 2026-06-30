@@ -1,9 +1,14 @@
 import chalk from "chalk";
-import { searchServers, getAllServers } from "../registry.js";
-import type { RegistryServer } from "../types.js";
+import { searchServers, getAllServers, getAllBundles } from "../registry.js";
+import type { RegistryServer, RegistryBundle } from "../types.js";
 
-export function search(query?: string): void {
-  const results = query ? searchServers(query) : getAllServers();
+export async function search(query?: string, showBundles?: boolean): Promise<void> {
+  if (showBundles) {
+    await printBundles();
+    return;
+  }
+
+  const results = query ? await searchServers(query) : await getAllServers();
 
   if (results.length === 0) {
     console.log(chalk.yellow(`\nNo servers found matching "${query}"\n`));
@@ -20,19 +25,28 @@ export function search(query?: string): void {
     printServer(id, server);
   }
 
-  console.log(
-    chalk.dim(`\nInstall a server: `) + chalk.italic(`mcpm install <name>\n`)
-  );
+  console.log(chalk.dim(`Install: `) + chalk.italic(`mcpm install <name>`));
+  console.log(chalk.dim(`Bundles: `) + chalk.italic(`mcpm search --bundles\n`));
+}
+
+async function printBundles(): Promise<void> {
+  const bundles = await getAllBundles();
+  console.log(chalk.dim(`\n${bundles.length} bundles available\n`));
+  for (const [id, bundle] of bundles) {
+    printBundle(id, bundle);
+  }
+  console.log(chalk.dim(`Install a bundle: `) + chalk.italic(`mcpm install @bundle/<name>\n`));
 }
 
 function printServer(id: string, server: RegistryServer): void {
-  const tags = server.tags
-    .map((t) => chalk.cyan(`#${t}`))
-    .join(" ");
-
-  console.log(
-    `  ${chalk.bold(id.padEnd(16))} ${server.description}`
-  );
+  const tags = server.tags.map((t) => chalk.cyan(`#${t}`)).join(" ");
+  console.log(`  ${chalk.bold(id.padEnd(16))} ${server.description}`);
   console.log(`  ${" ".repeat(16)} ${tags}`);
+  console.log();
+}
+
+function printBundle(id: string, bundle: RegistryBundle): void {
+  console.log(`  ${chalk.bold(("@bundle/" + id).padEnd(22))} ${bundle.description}`);
+  console.log(`  ${" ".repeat(22)} ${bundle.servers.map((s) => chalk.cyan(s)).join(", ")}`);
   console.log();
 }

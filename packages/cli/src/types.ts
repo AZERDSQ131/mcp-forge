@@ -12,9 +12,16 @@ export interface RegistryServer {
   tags: string[];
 }
 
+export interface RegistryBundle {
+  name: string;
+  description: string;
+  servers: string[];
+}
+
 export interface Registry {
   version: string;
   servers: Record<string, RegistryServer>;
+  bundles: Record<string, RegistryBundle>;
 }
 
 export interface McpServerConfig {
@@ -33,4 +40,10 @@ export interface DetectedClient {
   name: string;
   configPath: string;
   detected: boolean;
+}
+
+export interface ExportFormat {
+  version: string;
+  exportedAt: string;
+  servers: Record<string, McpServerConfig>;
 }

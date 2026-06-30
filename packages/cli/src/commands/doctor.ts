@@ -37,9 +37,8 @@ export async function doctor(): Promise<void> {
       continue;
     }
 
-    const results: ServerHealth[] = [];
-
     const spinner = ora({ text: "Checking packages...", indent: 2 }).start();
+    const results: ServerHealth[] = [];
 
     for (const [id, config] of entries) {
       const health = await checkServer(id, config.command, config.args);
@@ -53,9 +52,7 @@ export async function doctor(): Promise<void> {
         console.log(`  ${chalk.green("✓")} ${chalk.bold(result.id)}`);
       } else if (result.status === "broken") {
         console.log(`  ${chalk.red("✗")} ${chalk.bold(result.id)} ${chalk.red("— package not found")}`);
-        if (result.fix) {
-          console.log(`    ${chalk.dim("→")} ${chalk.cyan(result.fix)}`);
-        }
+        if (result.fix) console.log(`    ${chalk.dim("→")} ${chalk.cyan(result.fix)}`);
         allBroken.push(result.id);
       } else {
         console.log(`  ${chalk.yellow("~")} ${chalk.bold(result.id)} ${chalk.dim("— cannot verify (non-npx)")}`);
@@ -68,42 +65,26 @@ export async function doctor(): Promise<void> {
   if (allBroken.length === 0) {
     console.log(chalk.green("✓ All servers healthy\n"));
   } else {
-    console.log(
-      chalk.red(`✗ ${allBroken.length} broken server${allBroken.length > 1 ? "s" : ""}: `) +
-        allBroken.join(", ")
-    );
-    console.log(
-      chalk.dim("\nTo reinstall: ") +
-        chalk.italic(`mcpm uninstall <name> && mcpm install <name>\n`)
-    );
+    console.log(chalk.red(`✗ ${allBroken.length} broken server${allBroken.length > 1 ? "s" : ""}: `) + allBroken.join(", "));
+    console.log(chalk.dim("\nTo reinstall: ") + chalk.italic(`mcpm uninstall <name> && mcpm install <name>\n`));
   }
 }
 
-async function checkServer(
-  id: string,
-  command: string,
-  args: string[]
-): Promise<ServerHealth> {
-  if (command !== "npx") {
-    return { id, command, args, status: "unknown" };
-  }
+async function checkServer(id: string, command: string, args: string[]): Promise<ServerHealth> {
+  if (command !== "npx") return { id, command, args, status: "unknown" };
 
   const pkg = args.find((a) => !a.startsWith("-") && a !== "-y");
-  if (!pkg) {
-    return { id, command, args, status: "unknown" };
-  }
+  if (!pkg) return { id, command, args, status: "unknown" };
 
   try {
     execSync(`npm view ${pkg} version`, { stdio: "pipe", timeout: 10_000 });
     return { id, command, args, status: "ok" };
   } catch {
-    const known = getServer(id);
-    const registryPkg =
-      known?.args.find((a) => !a.startsWith("-") && a !== "-y") ?? undefined;
-    const fix =
-      registryPkg && registryPkg !== pkg
-        ? `mcpm uninstall ${id} && mcpm install ${id}  (correct package: ${registryPkg})`
-        : undefined;
+    const known = await getServer(id);
+    const registryPkg = known?.args.find((a) => !a.startsWith("-") && a !== "-y");
+    const fix = registryPkg && registryPkg !== pkg
+      ? `mcpm uninstall ${id} && mcpm install ${id}  (correct package: ${registryPkg})`
+      : undefined;
     return { id, command, args, status: "broken", fix };
   }
 }

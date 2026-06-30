@@ -3,7 +3,7 @@ import { detectClients } from "../clients/detect.js";
 import { listInstalledServers } from "../clients/config.js";
 import { getServer } from "../registry.js";
 
-export function list(): void {
+export async function list(): Promise<void> {
   const clients = detectClients();
   const detected = clients.filter((c) => c.detected);
 
@@ -37,12 +37,10 @@ export function list(): void {
     hasAny = true;
 
     for (const [id, config] of entries) {
-      const known = getServer(id);
+      const known = await getServer(id);
       const desc = known ? chalk.dim(` — ${known.description}`) : "";
       console.log(`  ${chalk.green("✓")} ${chalk.bold(id)}${desc}`);
-      console.log(
-        chalk.dim(`    ${config.command} ${config.args.join(" ")}`)
-      );
+      console.log(chalk.dim(`    ${config.command} ${config.args.join(" ")}`));
     }
     console.log();
   }

@@ -5,7 +5,7 @@ import { getDetectedClients } from "../clients/detect.js";
 import { listInstalledServers } from "../clients/config.js";
 import { getServer } from "../registry.js";
 
-export async function update(): Promise<void> {
+export async function update(): Promise<void> { // eslint-disable-line
   const clients = getDetectedClients();
 
   if (clients.length === 0) {
@@ -31,10 +31,10 @@ export async function update(): Promise<void> {
   );
 
   for (const serverId of installed) {
-    const server = getServer(serverId);
+    const server = await getServer(serverId);
     if (!server || server.command !== "npx") continue;
 
-    const pkg = server.args.find((a) => a.startsWith("@") || (!a.startsWith("-") && a !== "-y"));
+    const pkg = server.args.find((a: string) => a.startsWith("@") || (!a.startsWith("-") && a !== "-y"));
     if (!pkg) continue;
 
     const spinner = ora(`Updating ${chalk.bold(serverId)}...`).start();

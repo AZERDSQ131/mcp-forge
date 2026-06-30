@@ -1,30 +1,72 @@
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
+import fs from "fs";
+import os from "os";
 import path from "path";
-import type { Registry, RegistryServer } from "./types.js";
+import type { Registry, RegistryServer, RegistryBundle } from "./types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const REGISTRY_URL =
+  "https://raw.githubusercontent.com/AZERDSQ131/mcp-forge/main/packages/registry/registry.json";
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_PATH = path.join(os.homedir(), ".cache", "mcp-fleet", "registry.json");
+
 let _registry: Registry | null = null;
 
-export function loadRegistry(): Registry {
+export async function loadRegistry(): Promise<Registry> {
   if (_registry) return _registry;
+  _registry = (await fetchLive()) ?? loadLocal();
+  return _registry;
+}
+
+async function fetchLive(): Promise<Registry | null> {
+  // Return cache if fresh
+  if (fs.existsSync(CACHE_PATH)) {
+    try {
+      const stat = fs.statSync(CACHE_PATH);
+      if (Date.now() - stat.mtimeMs < CACHE_TTL_MS) {
+        const cached = JSON.parse(fs.readFileSync(CACHE_PATH, "utf-8"));
+        return cached as Registry;
+      }
+    } catch {}
+  }
+
+  try {
+    const res = await fetch(REGISTRY_URL, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return null;
+    const data = (await res.json()) as Registry;
+    // Write cache
+    const dir = path.dirname(CACHE_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(CACHE_PATH, JSON.stringify(data, null, 2), "utf-8");
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function loadLocal(): Registry {
   const require = createRequire(import.meta.url);
   const registryPath = path.resolve(
     __dirname,
     "../../../packages/registry/registry.json"
   );
-  _registry = require(registryPath) as Registry;
-  return _registry;
+  return require(registryPath) as Registry;
 }
 
-export function getServer(id: string): RegistryServer | undefined {
-  const registry = loadRegistry();
+export async function getServer(id: string): Promise<RegistryServer | undefined> {
+  const registry = await loadRegistry();
   return registry.servers[id];
 }
 
-export function searchServers(query: string): Array<[string, RegistryServer]> {
-  const registry = loadRegistry();
+export async function getBundle(id: string): Promise<RegistryBundle | undefined> {
+  const registry = await loadRegistry();
+  return registry.bundles?.[id];
+}
+
+export async function searchServers(query: string): Promise<Array<[string, RegistryServer]>> {
+  const registry = await loadRegistry();
   const q = query.toLowerCase();
   return Object.entries(registry.servers).filter(([id, server]) => {
     return (
@@ -36,7 +78,12 @@ export function searchServers(query: string): Array<[string, RegistryServer]> {
   });
 }
 
-export function getAllServers(): Array<[string, RegistryServer]> {
-  const registry = loadRegistry();
+export async function getAllServers(): Promise<Array<[string, RegistryServer]>> {
+  const registry = await loadRegistry();
   return Object.entries(registry.servers);
+}
+
+export async function getAllBundles(): Promise<Array<[string, RegistryBundle]>> {
+  const registry = await loadRegistry();
+  return Object.entries(registry.bundles ?? {});
 }

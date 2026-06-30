@@ -4,6 +4,7 @@ import path from "path";
 import type { DetectedClient } from "../types.js";
 
 const home = os.homedir();
+const appSupport = path.join(home, "Library", "Application Support");
 
 const CLIENTS: DetectedClient[] = [
   {
@@ -34,6 +35,38 @@ const CLIENTS: DetectedClient[] = [
     id: "windsurf",
     name: "Windsurf",
     configPath: path.join(home, ".codeium", "windsurf", "mcp_config.json"),
+    detected: false,
+  },
+  {
+    id: "zed",
+    name: "Zed",
+    configPath: path.join(home, ".config", "zed", "settings.json"),
+    detected: false,
+  },
+  {
+    id: "gemini",
+    name: "Gemini CLI",
+    configPath: path.join(home, ".gemini", "settings.json"),
+    detected: false,
+  },
+  {
+    id: "cline",
+    name: "Cline",
+    configPath: path.join(
+      appSupport,
+      "Code",
+      "User",
+      "globalStorage",
+      "saoudrizwan.claude-dev",
+      "settings",
+      "cline_mcp_settings.json"
+    ),
+    detected: false,
+  },
+  {
+    id: "continue",
+    name: "Continue",
+    configPath: path.join(home, ".continue", "config.json"),
     detected: false,
   },
 ];

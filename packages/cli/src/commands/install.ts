@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
 import ora from "ora";
-import { getServer } from "../registry.js";
-import { getDetectedClients, detectClients } from "../clients/detect.js";
+import { getServer, getBundle } from "../registry.js";
+import { detectClients } from "../clients/detect.js";
 import { addServer, listInstalledServers } from "../clients/config.js";
 import type { McpServerConfig } from "../types.js";
 
@@ -13,7 +13,7 @@ export async function install(serverIds: string[]): Promise<void> {
   if (detectedClients.length === 0) {
     console.log(chalk.yellow("\nNo AI client detected on this machine."));
     console.log(
-      chalk.dim("Supported: Claude Code, Cursor, VS Code Copilot, Windsurf, Codex\n")
+      chalk.dim("Supported: Claude Code, Cursor, VS Code, Windsurf, Zed, Gemini CLI, Cline, Continue\n")
     );
     return;
   }
@@ -24,16 +24,38 @@ export async function install(serverIds: string[]): Promise<void> {
   }
   console.log();
 
-  for (const serverId of serverIds) {
+  // Expand bundles
+  const expanded: string[] = [];
+  for (const id of serverIds) {
+    if (id.startsWith("@bundle/")) {
+      const bundleName = id.replace("@bundle/", "");
+      const bundle = await getBundle(bundleName);
+      if (!bundle) {
+        console.log(chalk.red(`✗ Unknown bundle: ${chalk.bold(id)}`));
+        console.log(chalk.dim(`  Run ${chalk.italic("mcpm search --bundles")} to see available bundles`));
+        continue;
+      }
+      console.log(
+        chalk.bold(`Bundle ${chalk.cyan(bundle.name)}: `) +
+          chalk.dim(bundle.servers.join(", "))
+      );
+      console.log();
+      expanded.push(...bundle.servers);
+    } else {
+      expanded.push(id);
+    }
+  }
+
+  for (const serverId of [...new Set(expanded)]) {
     await installOne(serverId, detectedClients);
   }
 }
 
 async function installOne(
   serverId: string,
-  clients: ReturnType<typeof getDetectedClients>
+  clients: ReturnType<typeof detectClients>
 ): Promise<void> {
-  const server = getServer(serverId);
+  const server = await getServer(serverId);
 
   if (!server) {
     console.log(
@@ -50,7 +72,6 @@ async function installOne(
 
   if (envKeys.length > 0) {
     console.log(chalk.dim("  This server requires environment variables:"));
-
     for (const [key, meta] of envKeys) {
       if (meta.required) {
         const { value } = await inquirer.prompt<{ value: string }>([
@@ -76,16 +97,11 @@ async function installOne(
   };
 
   const spinner = ora("Writing configuration...").start();
-
   let successCount = 0;
-  let skipCount = 0;
 
   for (const client of clients) {
     const existing = listInstalledServers(client);
-    if (existing[serverId]) {
-      skipCount++;
-      continue;
-    }
+    if (existing[serverId]) continue;
     addServer(client, serverId, serverConfig);
     successCount++;
   }
@@ -95,23 +111,15 @@ async function installOne(
   for (const client of clients) {
     const existing = listInstalledServers(client);
     if (existing[serverId]) {
-      const wasSkipped = successCount === 0 && skipCount > 0;
-      const icon = wasSkipped ? chalk.yellow("~") : chalk.green("✓");
-      const status = wasSkipped ? chalk.dim("already installed") : chalk.dim(client.configPath);
-      console.log(`  ${icon} ${chalk.bold(client.name)} ${status}`);
+      console.log(
+        `  ${chalk.green("✓")} ${chalk.bold(client.name)} ${chalk.dim(client.configPath)}`
+      );
     }
   }
 
   if (successCount > 0) {
-    console.log(
-      chalk.green(`\n✓ ${server.name} installed`) +
-        chalk.dim(` for ${successCount} client${successCount > 1 ? "s" : ""}`)
-    );
-    if (envKeys.length > 0) {
-      console.log(
-        chalk.dim(`  Restart your AI client for changes to take effect.`)
-      );
-    }
+    console.log(chalk.green(`\n✓ ${server.name} installed`) + chalk.dim(` for ${successCount} client${successCount > 1 ? "s" : ""}`));
+    if (envKeys.length > 0) console.log(chalk.dim("  Restart your AI client for changes to take effect."));
   } else {
     console.log(chalk.yellow(`\n~ ${server.name} already installed in all clients`));
   }

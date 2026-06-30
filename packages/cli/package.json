@@ -1,5 +1,5 @@
 {
-  "name": "mcp-forge",
+  "name": "mcp-fleet",
   "version": "0.1.0",
   "description": "Universal MCP server manager — install, configure, and update MCP servers across all AI clients",
   "type": "module",
@@ -12,7 +12,14 @@
     "watch": "tsc -w",
     "start": "node dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "../../packages/registry/registry.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AZERDSQ131/mcp-forge"
+  },
   "keywords": ["mcp", "model-context-protocol", "claude", "cursor", "ai", "cli", "mcpm", "mcp-manager"],
   "author": "",
   "license": "MIT",
