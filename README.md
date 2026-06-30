@@ -11,7 +11,7 @@ npx mcp-fleet install github
 ```
 
 <p align="center">
-  <img src="./demo.gif" alt="mcpm demo" width="700">
+  <img src="./assets/demo-install.gif" alt="mcpm install demo" width="700">
 </p>
 
 ---
@@ -95,6 +95,10 @@ mcpm publish                         Submit a server to the registry
 mcpm run <server>                    Run a server directly (stdio)
 ```
 
+<p align="center">
+  <img src="./assets/demo-doctor.gif" alt="mcpm doctor demo" width="700">
+</p>
+
 ---
 
 ## Project config (.mcpmrc)
@@ -112,6 +116,10 @@ Pin your project's MCP servers in a `.mcpmrc` file and let teammates sync in one
 mcpm sync
 ```
 
+<p align="center">
+  <img src="./assets/demo-sync.gif" alt="mcpm sync demo" width="700">
+</p>
+
 ---
 
 ## Registry
@@ -124,6 +132,10 @@ Browse at [azerdsq131.github.io/mcpm](https://azerdsq131.github.io/mcpm) or sear
 mcpm search <query>
 mcpm search --bundles
 ```
+
+<p align="center">
+  <img src="./assets/demo-search.gif" alt="mcpm search demo" width="700">
+</p>
 
 ### Bundles
 

@@ -1,4 +1,4 @@
-Output demo.gif
+Output assets/demo-search.gif
 
 Set FontSize 14
 Set Width 860
@@ -11,11 +11,7 @@ Type "mcpm search database"
 Sleep 400ms
 Enter
 Sleep 2.5s
-Type "mcpm info filesystem"
+Type "mcpm info postgres"
 Sleep 400ms
 Enter
 Sleep 2.5s
-Type "mcpm doctor"
-Sleep 400ms
-Enter
-Sleep 3.5s
