@@ -88,17 +88,17 @@
     }
     .glow-orb {
       position: absolute; border-radius: 50%;
-      filter: blur(80px); pointer-events: none; opacity: .45;
+      filter: blur(90px); pointer-events: none;
     }
-    .glow-1 { width: 600px; height: 600px; background: radial-gradient(circle, #7c6aff 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); }
-    .glow-2 { width: 400px; height: 400px; background: radial-gradient(circle, #2dd4bf 0%, transparent 70%); top: 100px; right: -100px; opacity: .2; }
-    .glow-3 { width: 350px; height: 350px; background: radial-gradient(circle, #f472b6 0%, transparent 70%); top: 150px; left: -80px; opacity: .15; }
+    .glow-1 { width: 700px; height: 700px; background: radial-gradient(circle, #7c6aff 0%, transparent 65%); top: -250px; left: 50%; transform: translateX(-50%); opacity: .5; }
+    .glow-2 { width: 400px; height: 400px; background: radial-gradient(circle, #2dd4bf 0%, transparent 70%); top: 80px; right: -80px; opacity: .18; }
+    .glow-3 { width: 350px; height: 350px; background: radial-gradient(circle, #f472b6 0%, transparent 70%); top: 120px; left: -60px; opacity: .13; }
 
     /* ── HERO ── */
     .hero {
       position: relative; z-index: 1;
-      max-width: 780px; margin: 0 auto;
-      padding: 5.5rem 2rem 3.5rem;
+      max-width: 700px; margin: 0 auto;
+      padding: 4.5rem 2rem 4rem;
       text-align: center;
     }
     .hero-badge {
@@ -112,38 +112,45 @@
     .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 
-    h1 {
-      font-size: clamp(2.2rem, 6.5vw, 4rem);
-      font-weight: 900; letter-spacing: -.04em; line-height: 1.08;
-      margin-bottom: 1.25rem;
-    }
-    h1 .line2 {
-      background: linear-gradient(135deg, var(--accent2) 0%, var(--teal) 100%);
+    /* Big number */
+    .hero-number {
+      font-size: clamp(5.5rem, 20vw, 10rem);
+      font-weight: 900; letter-spacing: -.06em; line-height: .95;
+      background: linear-gradient(160deg, #fff 0%, var(--accent2) 50%, var(--teal) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
+      filter: drop-shadow(0 0 48px rgba(124,106,255,.55));
+      margin-bottom: .6rem;
+    }
+    .hero-number-label {
+      font-size: 1.05rem; color: var(--text2); font-weight: 500;
+      letter-spacing: .01em; margin-bottom: 2rem;
+    }
+    .hero-divider {
+      width: 36px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border2), transparent);
+      margin: 0 auto 2rem;
+    }
+    h1 {
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      font-weight: 800; letter-spacing: -.03em; line-height: 1.2;
+      margin-bottom: .9rem;
     }
     .hero-sub {
-      font-size: 1.1rem; color: var(--text2); line-height: 1.7;
-      max-width: 520px; margin: 0 auto 2.5rem;
+      font-size: 1rem; color: var(--text2); line-height: 1.75;
+      max-width: 460px; margin: 0 auto 1.75rem;
     }
-    .hero-count {
-      display: flex; align-items: center; justify-content: center; gap: 1rem;
-      margin-bottom: 2rem; flex-wrap: wrap;
+    .hero-chips {
+      display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 2.25rem;
     }
-    .hero-count-number {
-      font-size: clamp(3.5rem, 10vw, 6rem);
-      font-weight: 900; letter-spacing: -.04em; line-height: 1;
-      background: linear-gradient(135deg, #fff 0%, var(--accent2) 40%, var(--teal) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .hero-chip {
+      background: rgba(255,255,255,.04); border: 1px solid var(--border2);
+      border-radius: 99px; padding: .28rem .8rem;
+      font-size: .75rem; color: var(--text2); font-weight: 500;
     }
-    .hero-count-label {
-      font-size: clamp(1rem, 2.5vw, 1.4rem);
-      color: var(--text2); font-weight: 600; line-height: 1.3;
-      text-align: left;
-    }
-    .hero-count-label strong { color: var(--text); display: block; }
-    .hero-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .hero-chip b { color: var(--accent2); font-weight: 700; }
+    .hero-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.25rem; }
 
     .btn {
       display: inline-flex; align-items: center; gap: .45rem;
@@ -198,15 +205,6 @@
       background: linear-gradient(135deg, var(--text) 0%, var(--accent3) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
-    }
-    .stat:first-child .stat-value {
-      font-size: 3rem;
-      background: linear-gradient(135deg, var(--accent2) 0%, var(--teal) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .stat:first-child .stat-label {
-      font-size: .85rem; color: var(--accent3);
     }
     .stat-label { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
 
@@ -427,21 +425,23 @@
   <div class="hero">
     <div class="hero-badge">
       <div class="hero-badge-dot"></div>
-      1000+ servers · Open Source · MIT
+      Open Source · MIT · v1.0.0
     </div>
-    <h1>
-      One command.<br>
-      <span class="line2">Every AI client.</span>
-    </h1>
+
+    <div class="hero-number" id="heroCount" data-count="1000" data-suffix="+">1000+</div>
+    <div class="hero-number-label">verified MCP servers</div>
+    <div class="hero-divider"></div>
+
+    <h1>Install any of them in one command.</h1>
     <p class="hero-sub">
-      mcpm installs and manages MCP servers across Claude, Cursor, Windsurf, Zed, and 5 more — writing the right config for each one, automatically.
+      mcpm manages MCP servers across Claude, Cursor, Windsurf, Zed, and 5 more AI clients — writing the right config for each one, automatically.
     </p>
-    <div class="hero-count reveal">
-      <span class="hero-count-number" id="heroCount" data-count="1000" data-suffix="+">0</span>
-      <div class="hero-count-label">
-        <strong>verified MCP servers</strong>
-        across 5 runtimes · 9 clients
-      </div>
+
+    <div class="hero-chips">
+      <div class="hero-chip"><b>9</b> AI clients</div>
+      <div class="hero-chip"><b>5</b> runtimes</div>
+      <div class="hero-chip"><b>11</b> curated bundles</div>
+      <div class="hero-chip">npm · PyPI · Docker · Go · Deno</div>
     </div>
 
     <div class="hero-actions">
@@ -454,9 +454,9 @@
 
     <div class="install-cmd" id="installCmd">
       <span class="prefix">$</span>
-      <span class="cmd-text" id="installText">npx mcp-fleet install github</span>
-      <button class="copy-btn" id="copyBtn" title="Copy" onclick="copyInstall()">
-        <svg id="copyIcon" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>
+      <span class="cmd-text">npx mcp-fleet install github</span>
+      <button class="copy-btn" title="Copy" onclick="copyInstall()">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>
       </button>
     </div>
   </div>
