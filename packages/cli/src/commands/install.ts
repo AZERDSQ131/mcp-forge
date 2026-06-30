@@ -4,9 +4,10 @@ import ora from "ora";
 import { getServer, getBundle } from "../registry.js";
 import { detectClients } from "../clients/detect.js";
 import { addServer, listInstalledServers } from "../clients/config.js";
+import { addToRC, readRC } from "./sync.js";
 import type { McpServerConfig } from "../types.js";
 
-export async function install(serverIds: string[]): Promise<void> {
+export async function install(serverIds: string[], opts: { save?: boolean } = {}): Promise<void> {
   const allClients = detectClients();
   const detectedClients = allClients.filter((c) => c.detected);
 
@@ -46,8 +47,15 @@ export async function install(serverIds: string[]): Promise<void> {
     }
   }
 
+  const shouldSave = opts.save || readRC() !== null;
+
   for (const serverId of [...new Set(expanded)]) {
     await installOne(serverId, detectedClients);
+    if (shouldSave) addToRC(serverId);
+  }
+
+  if (shouldSave && opts.save) {
+    console.log(chalk.dim(`✓ Saved to .mcpmrc\n`));
   }
 }
 

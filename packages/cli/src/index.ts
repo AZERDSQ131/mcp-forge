@@ -4,11 +4,15 @@ import chalk from "chalk";
 import { install } from "./commands/install.js";
 import { uninstall } from "./commands/uninstall.js";
 import { search } from "./commands/search.js";
+import { info } from "./commands/info.js";
 import { list } from "./commands/list.js";
 import { update } from "./commands/update.js";
+import { outdated } from "./commands/outdated.js";
 import { doctor } from "./commands/doctor.js";
-import { info } from "./commands/info.js";
+import { run } from "./commands/run.js";
+import { sync } from "./commands/sync.js";
 import { exportConfig, importConfig } from "./commands/exportImport.js";
+import { completion, printCompletionHelp } from "./commands/completion.js";
 
 const program = new Command();
 
@@ -26,8 +30,9 @@ program
   .command("install <servers...>")
   .alias("i")
   .description("Install one or more servers or a bundle (@bundle/<name>)")
-  .action(async (servers: string[]) => {
-    await install(servers);
+  .option("--save", "Save to .mcpmrc")
+  .action(async (servers: string[], opts: { save?: boolean }) => {
+    await install(servers, { save: opts.save });
   });
 
 program
@@ -64,10 +69,31 @@ program
   });
 
 program
+  .command("run <server>")
+  .description("Run a server temporarily to see its tools (nothing is saved)")
+  .action(async (server: string) => {
+    await run(server);
+  });
+
+program
+  .command("sync")
+  .description("Install all servers listed in .mcpmrc")
+  .action(async () => {
+    await sync();
+  });
+
+program
   .command("update")
   .description("Update all installed MCP servers to latest versions")
   .action(async () => {
     await update();
+  });
+
+program
+  .command("outdated")
+  .description("Check which installed servers have updates or package mismatches")
+  .action(async () => {
+    await outdated();
   });
 
 program
@@ -91,19 +117,32 @@ program
     await importConfig(file);
   });
 
+program
+  .command("completion <shell>")
+  .description("Generate shell completion script (bash, zsh, fish)")
+  .action((shell: string) => {
+    if (!shell) {
+      printCompletionHelp();
+    } else {
+      completion(shell as "bash" | "zsh" | "fish");
+    }
+  });
+
 program.addHelpText(
   "after",
   `
 ${chalk.dim("Examples:")}
-  ${chalk.italic("mcpm install github")}                   install GitHub MCP server
-  ${chalk.italic("mcpm install @bundle/webdev")}           install the Web Dev bundle
-  ${chalk.italic("mcpm search --bundles")}                 browse available bundles
-  ${chalk.italic("mcpm info postgres")}                    show details about a server
-  ${chalk.italic("mcpm list")}                             show all installed servers
-  ${chalk.italic("mcpm doctor")}                           check server health
-  ${chalk.italic("mcpm export ~/my-mcp-setup.json")}       backup your setup
-  ${chalk.italic("mcpm import ~/my-mcp-setup.json")}       restore on a new machine
-  ${chalk.italic("mcpm update")}                           update all servers
+  ${chalk.italic("mcpm install github --save")}           install and save to .mcpmrc
+  ${chalk.italic("mcpm install @bundle/webdev")}          install the Web Dev bundle
+  ${chalk.italic("mcpm sync")}                            install all servers in .mcpmrc
+  ${chalk.italic("mcpm run fetch")}                       test a server without installing
+  ${chalk.italic("mcpm outdated")}                        check for updates
+  ${chalk.italic("mcpm search --bundles")}                browse available bundles
+  ${chalk.italic("mcpm info postgres")}                   show details about a server
+  ${chalk.italic("mcpm doctor")}                          check server health
+  ${chalk.italic("mcpm export ~/my-mcp-setup.json")}      backup your setup
+  ${chalk.italic("mcpm import ~/my-mcp-setup.json")}      restore on a new machine
+  ${chalk.italic('eval "$(mcpm completion zsh)"')}        enable tab completion
 `
 );
 

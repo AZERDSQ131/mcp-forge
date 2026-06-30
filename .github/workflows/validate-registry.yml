@@ -1,0 +1,58 @@
+name: Validate Registry
+
+on:
+  pull_request:
+    paths:
+      - "packages/registry/registry.json"
+  push:
+    branches: [main]
+    paths:
+      - "packages/registry/registry.json"
+
+jobs:
+  validate:
+    name: Check all npm packages exist
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate registry packages
+        run: |
+          node - <<'EOF'
+          import { readFileSync } from "fs";
+
+          const registry = JSON.parse(readFileSync("packages/registry/registry.json", "utf-8"));
+          const { execSync } = await import("child_process");
+
+          let failed = 0;
+
+          for (const [id, server] of Object.entries(registry.servers)) {
+            if (server.command !== "npx") continue;
+            const pkg = server.args.find(a => !a.startsWith("-") && a !== "-y");
+            if (!pkg) continue;
+
+            try {
+              const version = execSync(`npm view ${pkg} version`, {
+                stdio: "pipe",
+                timeout: 15000,
+              }).toString().trim();
+              console.log(`✓ ${id} — ${pkg}@${version}`);
+            } catch {
+              console.error(`✗ ${id} — package not found on npm: ${pkg}`);
+              failed++;
+            }
+          }
+
+          if (failed > 0) {
+            console.error(`\n${failed} package(s) failed validation.`);
+            process.exit(1);
+          } else {
+            console.log(`\nAll ${Object.keys(registry.servers).length} packages valid.`);
+          }
+          EOF
+        shell: bash
