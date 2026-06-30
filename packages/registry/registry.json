@@ -14772,6 +14772,25 @@
         "search",
         "onchain"
       ]
+    },
+    "gaal": {
+      "name": "Gaal",
+      "description": "CLI to keep local repos, AI agent skills, and MCP server configurations in sync. Supports Claude, Copilot, Cursor and more.",
+      "command": "curl",
+      "args": [
+        "-fsSL",
+        "https://raw.githubusercontent.com/getgaal/gaal/main/scripts/install.sh",
+        "|",
+        "sh"
+      ],
+      "url": "https://github.com/getgaal/gaal",
+      "tags": [
+        "cli",
+        "mcp",
+        "skills",
+        "sync",
+        "tools"
+      ]
     }
   },
   "bundles": {
