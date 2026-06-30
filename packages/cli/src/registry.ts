@@ -16,7 +16,17 @@ let _registry: Registry | null = null;
 
 export async function loadRegistry(): Promise<Registry> {
   if (_registry) return _registry;
-  _registry = (await fetchLive()) ?? loadLocal();
+  const live = await fetchLive();
+  const local = loadLocal();
+  // Merge: prefer live servers, but use local bundles if live doesn't have them
+  if (live) {
+    _registry = {
+      ...live,
+      bundles: Object.keys(live.bundles ?? {}).length > 0 ? live.bundles : local.bundles,
+    };
+  } else {
+    _registry = local;
+  }
   return _registry;
 }
 
