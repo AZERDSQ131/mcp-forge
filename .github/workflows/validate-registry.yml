@@ -11,7 +11,7 @@ on:
 
 jobs:
   validate:
-    name: Check all npm packages exist
+    name: Check all packages exist
     runs-on: ubuntu-latest
 
     steps:
@@ -21,14 +21,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Validate registry packages
+      - name: Validate npm packages
         run: |
-          node - <<'EOF'
+          node --input-type=module <<'EOF'
           import { readFileSync } from "fs";
+          import { execSync } from "child_process";
 
           const registry = JSON.parse(readFileSync("packages/registry/registry.json", "utf-8"));
-          const { execSync } = await import("child_process");
-
           let failed = 0;
 
           for (const [id, server] of Object.entries(registry.servers)) {
@@ -49,10 +48,52 @@ jobs:
           }
 
           if (failed > 0) {
-            console.error(`\n${failed} package(s) failed validation.`);
+            console.error(`\n${failed} npm package(s) failed validation.`);
             process.exit(1);
-          } else {
-            console.log(`\nAll ${Object.keys(registry.servers).length} packages valid.`);
           }
           EOF
-        shell: bash
+
+      - name: Validate Python packages
+        run: |
+          node --input-type=module <<'EOF'
+          import { readFileSync } from "fs";
+          import { execSync } from "child_process";
+
+          const registry = JSON.parse(readFileSync("packages/registry/registry.json", "utf-8"));
+          let failed = 0;
+
+          for (const [id, server] of Object.entries(registry.servers)) {
+            if (server.command !== "uvx") continue;
+            const pkg = server.args.find(a => !a.startsWith("-") && a !== "--from");
+            if (!pkg) continue;
+
+            try {
+              const res = execSync(`curl -sf "https://pypi.org/pypi/${pkg}/json"`, {
+                stdio: "pipe",
+                timeout: 15000,
+              });
+              const data = JSON.parse(res.toString());
+              const version = data.info?.version ?? "?";
+              console.log(`✓ ${id} — ${pkg}@${version} (PyPI)`);
+            } catch {
+              console.error(`✗ ${id} — package not found on PyPI: ${pkg}`);
+              failed++;
+            }
+          }
+
+          if (failed > 0) {
+            console.error(`\n${failed} Python package(s) failed validation.`);
+            process.exit(1);
+          }
+          EOF
+
+      - name: Summary
+        run: |
+          node --input-type=module <<'EOF'
+          import { readFileSync } from "fs";
+          const registry = JSON.parse(readFileSync("packages/registry/registry.json", "utf-8"));
+          const total = Object.keys(registry.servers).length;
+          const npm = Object.values(registry.servers).filter(s => s.command === "npx").length;
+          const python = Object.values(registry.servers).filter(s => s.command === "uvx").length;
+          console.log(`\n✓ Registry: ${total} servers total (${npm} npm, ${python} Python)\n`);
+          EOF

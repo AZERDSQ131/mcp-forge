@@ -55,7 +55,8 @@ export async function publish(): Promise<void> {
     id: string;
     displayName: string;
     description: string;
-    npmPackage: string;
+    runtime: "node" | "python";
+    packageName: string;
     tags: string;
     hasEnv: boolean;
   }>([
@@ -81,9 +82,19 @@ export async function publish(): Promise<void> {
       validate: (v: string) => v.trim().length > 0 || "Required",
     },
     {
+      type: "list",
+      name: "runtime",
+      message: "Runtime:",
+      choices: [
+        { name: "Node.js (npm / npx)", value: "node" },
+        { name: "Python (PyPI / uvx)", value: "python" },
+      ],
+      default: "node",
+    },
+    {
       type: "input",
-      name: "npmPackage",
-      message: "npm package name:",
+      name: "packageName",
+      message: (a: { runtime: string }) => a.runtime === "python" ? "PyPI package name:" : "npm package name:",
       default: detected.name ?? "",
       validate: (v: string) => v.trim().length > 0 || "Required",
     },
@@ -122,11 +133,12 @@ export async function publish(): Promise<void> {
     }
   }
 
+  const isPython = answers.runtime === "python";
   const entry: RegistryEntry = {
     name: answers.displayName,
     description: answers.description,
-    command: "npx",
-    args: ["-y", answers.npmPackage],
+    command: isPython ? "uvx" : "npx",
+    args: isPython ? [answers.packageName] : ["-y", answers.packageName],
     env: envVars,
     tags: answers.tags.split(",").map((t) => t.trim()).filter(Boolean),
   };
@@ -172,7 +184,7 @@ export async function publish(): Promise<void> {
     execSync(`git -C ${repoDir} commit -m "Add ${answers.id} to registry"`, { stdio: "pipe" });
     execSync(`git -C ${repoDir} push origin ${branch}`, { stdio: "pipe", timeout: 15_000 });
     execSync(
-      `gh pr create --repo AZERDSQ131/mcp-forge --title "Add ${answers.displayName} to registry" --body "Adds \`${answers.id}\` — ${answers.description}\n\nPackage: \`${answers.npmPackage}\`" --head ${branch}`,
+      `gh pr create --repo AZERDSQ131/mcp-forge --title "Add ${answers.displayName} to registry" --body "Adds \`${answers.id}\` — ${answers.description}\n\nPackage: \`${answers.packageName}\`" --head ${branch}`,
       { stdio: "pipe", timeout: 15_000 }
     );
 

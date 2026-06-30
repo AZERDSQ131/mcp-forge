@@ -60,6 +60,15 @@ export async function outdated(): Promise<void> {
       } catch {
         status = "unknown";
       }
+    } else if (config.command === "uvx" && pkgToCheck) {
+      try {
+        const out = execSync(`curl -sf "https://pypi.org/pypi/${pkgToCheck}/json"`, { stdio: "pipe", timeout: 10_000 });
+        const data = JSON.parse(out.toString()) as { info?: { version?: string } };
+        latestVersion = data.info?.version ?? null;
+        status = latestVersion ? (pkgMismatch ? "mismatch" : "ok") : "unknown";
+      } catch {
+        status = "unknown";
+      }
     }
 
     results.push({ id, currentPkg, registryPkg, latestVersion, pkgMismatch, status });

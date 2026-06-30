@@ -10,6 +10,7 @@ export interface RegistryServer {
   args: string[];
   env: Record<string, EnvVar>;
   tags: string[];
+  runtime?: "node" | "python";
 }
 
 export interface RegistryBundle {
