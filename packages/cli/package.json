@@ -4,7 +4,7 @@
   "description": "Universal MCP server manager — install, configure, and update MCP servers across all AI clients",
   "type": "module",
   "bin": {
-    "mcpm": "./dist/index.js"
+    "mcpm": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -14,13 +14,22 @@
   },
   "files": [
     "dist",
-    "../../packages/registry/registry.json"
+    "registry.json"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AZERDSQ131/mcpm"
+    "url": "git+https://github.com/AZERDSQ131/mcpm.git"
   },
-  "keywords": ["mcp", "model-context-protocol", "claude", "cursor", "ai", "cli", "mcpm", "mcp-manager"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "cursor",
+    "ai",
+    "cli",
+    "mcpm",
+    "mcp-manager"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

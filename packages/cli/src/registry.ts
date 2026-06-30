@@ -58,10 +58,7 @@ async function fetchLive(): Promise<Registry | null> {
 
 function loadLocal(): Registry {
   const require = createRequire(import.meta.url);
-  const registryPath = path.resolve(
-    __dirname,
-    "../../../packages/registry/registry.json"
-  );
+  const registryPath = path.resolve(__dirname, "../registry.json");
   return require(registryPath) as Registry;
 }
 
