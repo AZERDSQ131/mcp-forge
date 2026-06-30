@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mcpm — Universal MCP Server Manager</title>
+  <meta name="description" content="Install, configure, and update MCP servers across all your AI clients in one command. 1000+ servers, 5 runtimes, 9 clients." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --border: #222;
+      --accent: #7c6aff;
+      --accent2: #a78bfa;
+      --text: #e8e8e8;
+      --muted: #666;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --code-bg: #1a1a1a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+      background: rgba(13,13,13,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-weight: 700; font-size: 1rem; color: var(--text); letter-spacing: -.02em; }
+    .nav-logo span { color: var(--accent2); }
+    .nav-links { display: flex; gap: 1.5rem; font-size: .875rem; color: var(--muted); }
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-cta {
+      background: var(--accent); color: #fff; padding: .35rem .9rem;
+      border-radius: 6px; font-size: .8rem; font-weight: 600;
+    }
+    .nav-cta:hover { background: var(--accent2); text-decoration: none; }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 760px; margin: 0 auto;
+      padding: 6rem 2rem 3rem;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(124,106,255,.15); color: var(--accent2);
+      border: 1px solid rgba(124,106,255,.3);
+      padding: .25rem .75rem; border-radius: 99px;
+      font-size: .75rem; font-weight: 600; letter-spacing: .04em;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800; letter-spacing: -.03em;
+      line-height: 1.1; margin-bottom: 1rem;
+    }
+    h1 em { font-style: normal; color: var(--accent2); }
+    .subtitle {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 500px; margin: 0 auto 2.5rem;
+    }
+    .hero-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .6rem 1.4rem; border-radius: 8px;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); text-decoration: none; }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: #444; text-decoration: none; }
+
+    /* ── INSTALL STRIP ── */
+    .install-strip {
+      max-width: 540px; margin: 3rem auto;
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .install-strip-label {
+      padding: .5rem 1rem;
+      font-size: .7rem; font-weight: 600; letter-spacing: .06em;
+      color: var(--muted); text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .install-strip code {
+      display: block; padding: .9rem 1.2rem;
+      font-family: "SF Mono", "Fira Code", monospace; font-size: .9rem;
+      color: var(--green);
+    }
+
+    /* ── STATS ── */
+    .stats {
+      display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+      padding: 2.5rem 2rem 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat { text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: var(--accent2); }
+    .stat-label { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── SECTION ── */
+    section { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+    section + section { border-top: 1px solid var(--border); }
+    .section-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: .75rem;
+    }
+    h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 1rem; }
+    p { color: var(--muted); margin-bottom: 1rem; }
+
+    /* ── TERMINAL ── */
+    .terminal {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin: 1.5rem 0;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .6rem 1rem; border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #28c840; }
+    .terminal-body { padding: 1.2rem 1.4rem; font-family: "SF Mono", monospace; font-size: .82rem; line-height: 1.8; }
+    .t-prompt { color: var(--accent); }
+    .t-cmd { color: var(--text); }
+    .t-ok { color: var(--green); }
+    .t-dim { color: var(--muted); }
+    .t-yellow { color: var(--yellow); }
+
+    /* ── GRID ── */
+    .grid { display: grid; gap: 1rem; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.2rem 1.4rem;
+    }
+    .card-icon { font-size: 1.4rem; margin-bottom: .6rem; }
+    .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+    .card p { font-size: .82rem; color: var(--muted); margin: 0; }
+
+    /* ── CLIENT TABLE ── */
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th { text-align: left; padding: .5rem .75rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: .55rem .75rem; border-bottom: 1px solid #1a1a1a; }
+    td:first-child { font-weight: 600; color: var(--text); }
+    td:last-child { color: var(--muted); font-family: "SF Mono", monospace; font-size: .78rem; }
+
+    /* ── BUNDLES ── */
+    .bundle-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .bundle-tag {
+      background: rgba(124,106,255,.1); border: 1px solid rgba(124,106,255,.2);
+      color: var(--accent2); padding: .3rem .75rem; border-radius: 99px;
+      font-size: .8rem; font-weight: 500;
+    }
+
+    /* ── RUNTIME PILLS ── */
+    .runtime-pills { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+    .pill {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: .5rem .9rem; font-size: .82rem;
+    }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+    /* ── CTA FOOTER ── */
+    .cta-footer {
+      text-align: center;
+      padding: 5rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .cta-footer h2 { font-size: 2rem; margin-bottom: .75rem; }
+    .cta-footer p { color: var(--muted); margin-bottom: 2rem; }
+
+    footer {
+      text-align: center; padding: 1.5rem;
+      font-size: .8rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">mcp<span>m</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#clients">Clients</a>
+    <a href="#runtimes">Runtimes</a>
+    <a href="#bundles">Bundles</a>
+    <a href="https://github.com/AZERDSQ131/mcp-forge">GitHub</a>
+  </div>
+  <a class="btn btn-primary nav-cta" href="https://github.com/AZERDSQ131/mcp-forge">Get started</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">Open Source · MIT · v1.0.0</div>
+  <h1>One command.<br><em>Every AI client.</em></h1>
+  <p class="subtitle">mcpm installs and manages MCP servers across Claude, Cursor, Windsurf, Zed, and 5 more — automatically.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://github.com/AZERDSQ131/mcp-forge">View on GitHub</a>
+    <a class="btn btn-ghost" href="#features">See how it works</a>
+  </div>
+  <div class="install-strip">
+    <div class="install-strip-label">Install a server</div>
+    <code>npx mcp-fleet install github</code>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value">1000+</div>
+    <div class="stat-label">verified MCP servers</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">9</div>
+    <div class="stat-label">AI clients supported</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">5</div>
+    <div class="stat-label">runtimes (npm, Python, Docker…)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">11</div>
+    <div class="stat-label">curated bundles</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">How it works</div>
+  <h2>Stop editing JSON configs by hand</h2>
+  <p>mcpm detects every AI client installed on your machine and writes the correct config format for each one — simultaneously.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">$</span> <span class="t-cmd">mcpm install github postgres filesystem</span></div>
+      <div class="t-dim">Installing 3 servers into 4 clients…</div>
+      <br>
+      <div><span class="t-ok">✓</span> Claude Code</div>
+      <div><span class="t-ok">✓</span> Cursor</div>
+      <div><span class="t-ok">✓</span> Windsurf</div>
+      <div><span class="t-ok">✓</span> Zed</div>
+      <br>
+      <div><span class="t-ok">✓</span> <span class="t-cmd">3 servers installed across 4 clients</span></div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:2rem">
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h3>Search 1000+ servers</h3>
+      <p>Browse the registry by name, tag, or description. Find exactly what you need.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🩺</div>
+      <h3>Doctor checks</h3>
+      <p>Verify all installed servers are reachable and correctly configured. Fix broken ones instantly.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📦</div>
+      <h3>Curated bundles</h3>
+      <p>Install a full set of tools for web dev, data, DevOps, AI — in one command.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔄</div>
+      <h3>Auto-update</h3>
+      <p>Keep servers current across npm, PyPI, Docker Hub, and Go modules.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <h3>Project config</h3>
+      <p>Pin servers in a <code style="font-size:.8rem;color:var(--accent2)">.mcpmrc</code> file. Teammates sync with one command.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚀</div>
+      <h3>Publish to registry</h3>
+      <p>Submit your MCP server to the public registry with <code style="font-size:.8rem;color:var(--accent2)">mcpm publish</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CLIENTS -->
+<section id="clients">
+  <div class="section-label">Clients</div>
+  <h2>Works with every major AI client</h2>
+  <p>mcpm detects installed clients automatically and writes the right config format for each one.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Config path</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Claude Code</td><td>~/.claude.json</td></tr>
+      <tr><td>Cursor</td><td>~/.cursor/mcp.json</td></tr>
+      <tr><td>VS Code Copilot</td><td>~/.vscode/mcp.json</td></tr>
+      <tr><td>Windsurf</td><td>~/.codeium/windsurf/mcp_config.json</td></tr>
+      <tr><td>Zed</td><td>~/.config/zed/settings.json</td></tr>
+      <tr><td>Gemini CLI</td><td>~/.gemini/settings.json</td></tr>
+      <tr><td>Cline</td><td>VS Code extension storage</td></tr>
+      <tr><td>Continue</td><td>~/.continue/config.json</td></tr>
+      <tr><td>OpenAI Codex</td><td>~/.codex/config.json</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- RUNTIMES -->
+<section id="runtimes">
+  <div class="section-label">Runtimes</div>
+  <h2>npm, Python, Docker, Go, Deno</h2>
+  <p>mcpm manages servers across all major runtimes — not just npm packages.</p>
+  <div class="runtime-pills">
+    <div class="pill"><div class="pill-dot" style="background:#4ade80"></div> Node.js / npx</div>
+    <div class="pill"><div class="pill-dot" style="background:#facc15"></div> Python / uvx</div>
+    <div class="pill"><div class="pill-dot" style="background:#60a5fa"></div> Docker</div>
+    <div class="pill"><div class="pill-dot" style="background:#34d399"></div> Go</div>
+    <div class="pill"><div class="pill-dot" style="background:#f472b6"></div> Deno</div>
+  </div>
+  <div class="terminal" style="margin-top:1.5rem">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+    </div>
+    <div class="terminal-body">
+      <div class="t-dim"># Node.js</div>
+      <div><span class="t-ok">✓</span> npx -y @modelcontextprotocol/server-github</div>
+      <div class="t-dim"># Python</div>
+      <div><span class="t-ok">✓</span> uvx mcp-server-fetch</div>
+      <div class="t-dim"># Docker</div>
+      <div><span class="t-ok">✓</span> docker run -i --rm mcp/puppeteer</div>
+      <div class="t-dim"># Go</div>
+      <div><span class="t-ok">✓</span> go run github.com/metoro-io/metoro-mcp-server@latest</div>
+    </div>
+  </div>
+</section>
+
+<!-- BUNDLES -->
+<section id="bundles">
+  <div class="section-label">Bundles</div>
+  <h2>Curated packs, installed in one command</h2>
+  <p>Bundles group the best servers for a use case. Install an entire workflow in seconds.</p>
+  <div class="terminal" style="margin-bottom:1.5rem">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">$</span> <span class="t-cmd">mcpm install @bundle/webdev</span></div>
+      <div class="t-dim">Installing 8 servers…</div>
+      <div><span class="t-ok">✓</span> github <span class="t-ok">✓</span> filesystem <span class="t-ok">✓</span> puppeteer <span class="t-ok">✓</span> fetch</div>
+      <div><span class="t-ok">✓</span> sqlite <span class="t-ok">✓</span> postgres <span class="t-ok">✓</span> sentry <span class="t-ok">✓</span> vercel</div>
+    </div>
+  </div>
+  <div class="bundle-grid">
+    <span class="bundle-tag">@bundle/webdev</span>
+    <span class="bundle-tag">@bundle/ai</span>
+    <span class="bundle-tag">@bundle/data</span>
+    <span class="bundle-tag">@bundle/devops</span>
+    <span class="bundle-tag">@bundle/cloud</span>
+    <span class="bundle-tag">@bundle/productivity</span>
+    <span class="bundle-tag">@bundle/finance</span>
+    <span class="bundle-tag">@bundle/social</span>
+    <span class="bundle-tag">@bundle/media</span>
+    <span class="bundle-tag">@bundle/startup</span>
+    <span class="bundle-tag">@bundle/ai-tools</span>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-footer">
+  <h2>Ready to supercharge your AI clients?</h2>
+  <p>Get started in 10 seconds — no account needed.</p>
+  <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+    <a class="btn btn-primary" href="https://github.com/AZERDSQ131/mcp-forge">View on GitHub</a>
+    <a class="btn btn-ghost" href="https://github.com/AZERDSQ131/mcp-forge#commands">Full docs</a>
+  </div>
+  <div class="install-strip" style="margin:2rem auto 0">
+    <div class="install-strip-label">Try now</div>
+    <code>npx mcp-fleet install github</code>
+  </div>
+</div>
+
+<footer>
+  mcpm · MIT License · <a href="https://github.com/AZERDSQ131/mcp-forge">github.com/AZERDSQ131/mcp-forge</a>
+</footer>
+
+</body>
+</html>
