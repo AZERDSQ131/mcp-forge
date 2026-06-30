@@ -14759,7 +14759,8 @@
         "web3",
         "search",
         "onchain"
-      ]
+      ],
+      "env": {}
     },
     "zambo-axis": {
       "name": "Axis",
@@ -14771,7 +14772,8 @@
         "web3",
         "search",
         "onchain"
-      ]
+      ],
+      "env": {}
     },
     "gaal": {
       "name": "Gaal",
@@ -14790,7 +14792,8 @@
         "skills",
         "sync",
         "tools"
-      ]
+      ],
+      "env": {}
     }
   },
   "bundles": {
