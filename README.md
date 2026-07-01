@@ -116,6 +116,9 @@ Pin your project's MCP servers in a `.mcpmrc` file and let teammates sync in one
 mcpm sync
 ```
 
+For team review flows, see [rendered output drift receipts](docs/rendered-output-drift-receipts.md):
+a safe dry-run artifact for checking which client config files would change before write/rollback.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/AZERDSQ131/mcpm/main/assets/demo-sync.gif" alt="mcpm sync demo" width="700">
 </p>
