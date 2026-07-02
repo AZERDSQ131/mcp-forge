@@ -6,7 +6,7 @@ import chalk from "chalk";
 import { detectClients } from "../clients/detect.js";
 import type { DetectedClient } from "../types.js";
 
-const ROLLBACK_DIR = path.join(process.cwd(), ".mcpm", "rollback");
+const ROLLBACK_DIR = path.join(os.homedir(), ".cache", "mcp-fleet", "rollback");
 
 interface SnapshotFile {
   client_id: string;

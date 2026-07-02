@@ -105,7 +105,7 @@ program
 program
   .command("rollback")
   .description("Restore client configs from the latest rollback snapshot")
-  .option("--snapshot <dir>", "Restore from a specific .mcpm/rollback snapshot directory")
+  .option("--snapshot <dir>", "Restore from a specific rollback snapshot directory")
   .action(async (opts: { snapshot?: string }) => {
     await rollback({ snapshot: opts.snapshot });
   });

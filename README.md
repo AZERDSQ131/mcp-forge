@@ -119,7 +119,7 @@ mcpm sync --dry-run --receipt .mcpm/sync-receipt.json
 mcpm rollback
 ```
 
-Before writing configs, mcpm stores rollback snapshots in `.mcpm/rollback/`. Keep `.mcpm/` out of git because snapshots may contain local config values.
+Before writing configs, mcpm stores rollback snapshots in `~/.cache/mcp-fleet/rollback/` because Claude Code, Cursor, and other client config files are global/user-level, not project-local. Keep rollback snapshots out of git because they may contain local config values.
 
 For team review flows, see [rendered output drift receipts](docs/rendered-output-drift-receipts.md):
 a safe dry-run artifact for checking which client config files would change before write/rollback.
